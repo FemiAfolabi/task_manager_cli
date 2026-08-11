@@ -1,8 +1,19 @@
+import 'package:task_manager_cli/src/task_actions.dart';
+
 void main() {
-  print('''
-    Flutter Engineering Academy
-    Semestre 1 : Maîtrise de Dart
-    Module 1 : Syntaxe Dart
-    Projet fil rouge : Gestionnaire de tâche CLI
-    ''');
+  final String title = normalizedTaskTitle(' Etudier les fonctions ');
+
+  if (!isValideTaskTitle(title)) {
+    print('Entrez un titre valide');
+    return;
+  }
+
+  final String summary = buildTaskSummary(
+    title: title,
+    isCompleted: false,
+    description: 'Première tâche ajoutée avec succès',
+  );
+
+  print(summary);
+  print(matchesKeyword(title: title, keyword: 'fonctions'));
 }
