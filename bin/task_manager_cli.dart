@@ -1,4 +1,6 @@
 import 'package:task_manager_cli/src/task_actions.dart';
+import 'package:task_manager_cli/src/task_collection.dart';
+import 'package:task_manager_cli/src/task_data.dart';
 
 void main() {
   final String title = normalizedTaskTitle(' Etudier les fonctions ');
@@ -16,4 +18,8 @@ void main() {
 
   print(summary);
   print(matchesKeyword(title: title, keyword: 'fonctions'));
+
+  final tasks = reportLines(sampleTasks);
+
+  print(tasks);
 }

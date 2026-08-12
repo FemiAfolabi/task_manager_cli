@@ -32,4 +32,9 @@ dart test
 ```
 
 ## Etat actuel
-Des fonctions de traitement des entrées comme le titre de la tâche, le statut, la description et le mot clé de recherche ont été implémentées.
+- Des fonctions de traitement des entrées comme le titre de la tâche, le statut, la description et le mot clé de recherche ont été implémentées.
+- Fonctions pour trier les tâches non terminées implémentée
+- Fonctions pour trier les tâches terminées implémentée
+- Fonctions pour rechercher une tâche
+- Fonctions pour connaître le nombre de tâches terminées
+- Fonctions qui affiche la liste des tâches avec leur rang
