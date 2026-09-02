@@ -1,25 +1,28 @@
-import 'package:task_manager_cli/src/task_actions.dart';
-import 'package:task_manager_cli/src/task_collection.dart';
-import 'package:task_manager_cli/src/task_data.dart';
+import 'dart:io';
 
 void main() {
-  final String title = normalizedTaskTitle(' Etudier les fonctions ');
+  _displayHeader();
 
-  if (!isValideTaskTitle(title)) {
-    print('Entrez un titre valide');
-    return;
-  }
+  _displayHelp();
+}
 
-  final String summary = buildTaskSummary(
-    title: title,
-    isCompleted: false,
-    description: 'Première tâche ajoutée avec succès',
-  );
+void _displayHeader() {
+  print('============================================');
+  print('     GESTIONNAIRE DE TACHES CLI AVANCÉ');
+  print('      Flutter Engineering Academy S1');
+  print('============================================');
+  print('');
+}
 
-  print(summary);
-  print(matchesKeyword(title: title, keyword: 'fonctions'));
+void _displayHelp() {
+  print('Commandes simulées (disponible dans le module suivant) :');
+  print('   - créer <titre>');
+  print('   - lister');
+  print('   - terminer <id>');
+  print('   - supprimer <id>');
+  print('   - quitter');
+  print('');
+  print('Appuyez sur entrée pour quitter');
 
-  final tasks = reportLines(sampleTasks);
-
-  print(tasks);
+  stdin.readLineSync();
 }
