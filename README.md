@@ -32,3 +32,4 @@ dart test
 
 ## Etat actuel
 - Initialisation du projet: créatrion de la structure du projet et du point d'entrée.
+- Le modèle métier, Task, a été créé.
