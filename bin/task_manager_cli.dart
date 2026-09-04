@@ -2,40 +2,37 @@ import 'dart:io';
 
 import 'package:task_manager_cli/src/models/priority.dart';
 import 'package:task_manager_cli/src/models/task.dart';
+import 'package:task_manager_cli/src/repositories/memory_task_repository.dart';
+import 'package:task_manager_cli/src/services/task_service.dart';
 
 void main() {
   _displayHeader();
 
-  try {
-    final task1 = Task(
-      id: '001',
-      title: 'Première tâche',
-      priority: Priority.high,
-      description: 'Tache créée pour tester ma classe Task',
+  final repository = MemoryTaskRepository();
+  final service = TaskService(repository: repository);
+
+  print('Initialisation du gestionnaire...');
+
+  final demoTask = Task(
+    id: '001',
+    title: 'Première tâche',
+    priority: Priority.high,
+    description: 'Tache créée pour tester ma classe Task',
+  );
+
+  service.addTask(demoTask);
+
+  final tasks = service.listTasks();
+
+  print('Nombre de tâches: ${tasks.length}');
+  print('Détails:');
+  for (var task in tasks) {
+    print(
+      '  - ${tasks.indexOf(task) + 1}. ${task.title}  ${task.priority.name}',
     );
-
-    print('Tâche créée');
-    print('ID: ${task1.id}');
-    print('Titre : ${task1.title}');
-    print('Description: ${task1.description}');
-    print('Priorité: ${task1.priority.name}');
-    print('Statut: ${task1.status.name}');
-    print(' ');
-
-    task1.complete();
-
-    print('Tâche éffectuée');
-    print('ID: ${task1.id}');
-    print('Titre : ${task1.title}');
-    print('Description: ${task1.description}');
-    print('Priorité: ${task1.priority.name}');
-    print('Statut: ${task1.status.name}');
-    print(' ');
-  } on ArgumentError catch (e) {
-    print('Erreur de création de la tâche: $e');
-  } on StateError catch (e) {
-    print('Erreur d\'état: $e');
   }
+
+  print('\n');
 
   _displayHelp();
 }
