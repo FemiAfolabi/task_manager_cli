@@ -16,4 +16,8 @@ final class TaskService {
 
     _repository.saveTasks(updatedTasks);
   }
+
+  void saveTasks(List<Task> tasks) {
+    _repository.saveTasks(tasks);
+  }
 }
