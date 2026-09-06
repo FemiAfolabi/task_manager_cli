@@ -34,3 +34,4 @@ dart test
 - Initialisation du projet: créatrion de la structure du projet et du point d'entrée.
 - Le modèle métier, Task, a été créé.
 - Le repository, son implémentation et le service qui consomme ce repo ont été implémentés
+- L'interface Cli construite
