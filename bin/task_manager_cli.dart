@@ -1,15 +1,15 @@
 import 'package:task_manager_cli/src/cli/task_command_handler.dart';
-import 'package:task_manager_cli/src/repositories/memory_task_repository.dart';
+import 'package:task_manager_cli/src/repositories/json_task_repository.dart';
 import 'package:task_manager_cli/src/services/task_service.dart';
 
-void main() {
+Future<void> main() async {
   _displayHeader();
 
-  final repository = MemoryTaskRepository();
+  final repository = JsonTaskRepository('data/tasks.json');
   final service = TaskService(repository: repository);
   final handler = TaskCommandHandler(service: service);
 
-  handler.run();
+  await handler.run();
 }
 
 void _displayHeader() {

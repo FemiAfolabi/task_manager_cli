@@ -11,24 +11,27 @@ final class TaskCommandHandler {
   TaskCommandHandler({required this._service});
 
   Future<void> run() async {
-    print('Bienvenue dans le gestionnaire de tâches Cli');
-    print('Tapez "help" pour a liste des commandes ou "quit" pour quiter');
+    print('Bienvenue dans le gestionnaire de tâches CLI');
+    print('Tapez "help" pour la liste des commandes ou "quit" pour quitter\n');
 
     while (true) {
-      stdout.write('>');
+      stdout.write('> ');
       final String? input = stdin.readLineSync();
 
       if (input == null) {
-        print('Fin de la session \n');
+        print('\nFin de la session');
         break;
       }
+
       final (commandType, args) = _parseCommand(input);
 
       if (commandType == CommandType.quit) {
         print('\nFin de la session');
         break;
       }
-      _handleCommand(commandType, args);
+
+      // AJOUT : await devant _handleCommand
+      await _handleCommand(commandType, args);
     }
   }
 
@@ -40,114 +43,122 @@ final class TaskCommandHandler {
       ['help'] => _showHelp(),
       ['list'] => (CommandType.list, <String>[]),
       ['create', var title] => (CommandType.create, [title]),
-      ['complete', var id] => (CommandType.complete, [id]),
-      ['delete', var id] => (CommandType.delete, [id]),
+      ['complete', var title] => (CommandType.complete, [title]),
+      ['delete', var title] => (CommandType.delete, [title]),
       _ => (CommandType.unknown, parts),
     };
   }
 
-  void _handleCommand(CommandType type, List<String> args) {
+  // CHANGEMENT : retour Future<void>
+  Future<void> _handleCommand(CommandType type, List<String> args) async {
     switch (type) {
       case CommandType.help:
-        break;
-
+        break; // déjà affiché dans _parseCommand
       case CommandType.list:
-        _listTask();
+        await _listTasks(); // AJOUT await
         break;
-
       case CommandType.create:
         if (args.isNotEmpty) {
-          _createTask(args.first);
+          await _createTask(args.first);
         }
         break;
-
       case CommandType.complete:
         if (args.isNotEmpty) {
-          _completeTask(args.first);
+          await _completeTask(args.first);
         }
         break;
-
       case CommandType.delete:
         if (args.isNotEmpty) {
-          _deleteTask(args.first);
+          await _deleteTask(args.first);
         }
         break;
-
       case CommandType.quit:
         break;
-
       case CommandType.unknown:
+        print(
+          'Commande inconnue. Tapez "help" pour voir les commandes disponibles.',
+        );
         break;
     }
   }
 
-  void _listTask() {
-    final tasks = _service.listTasks();
+  // CHANGEMENT : retour Future<void>
+  Future<void> _listTasks() async {
+    final tasks = await _service.listTasks();
 
     if (tasks.isEmpty) {
-      print('Aucune Tâche disponible');
+      print('Aucune tâche disponible');
+      return;
     }
 
     for (final task in tasks) {
-      final status = task.isComplete ? '[x]' : '[ ]';
-      print('$status - ${task.title}   (${task.priority.name})');
+      final status = task.isCompleted ? '[x]' : '[ ]';
+      print(
+        '$status - ${task.title}   (${task.priority.name}) "${task.status}"',
+      );
     }
   }
 
-  void _createTask(String title) {
+  Future<void> _createTask(String title) async {
     try {
       final task = Task(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         title: title,
       );
 
-      _service.addTask(task);
+      await _service.addTask(task);
       print('La tâche "$title" a été créée avec succès');
     } catch (e) {
-      print('Erreur lors de la création de la tâche: $e');
+      print('Erreur lors de la création de la tâche : $e');
     }
   }
 
-  void _completeTask(String id) {
+  Future<void> _completeTask(String title) async {
     try {
-      final tasks = _service.listTasks();
-      final task = tasks.firstWhere((t) => t.id == id);
-
+      final tasks = await _service.listTasks();
+      final task = tasks.firstWhere((t) => t.title == title);
       task.complete();
 
-      _service.addTask(task);
-      print('La tâche "${task.title}" a été terminée avec succès.');
+      // On met à jour la tâche dans le service (et donc dans le fichier)
+      await _service.updateTask(task);
+      print('✅ La tâche "${task.title}" a été terminée avec succès.');
     } catch (e) {
-      print('Erreur: Impossible de terminer la tâche $id');
+      print('❌ Erreur : impossible de terminer la tâche $title');
     }
   }
 
-  void _deleteTask(String id) {
+  Future<void> _deleteTask(String title) async {
     try {
-      final tasks = _service.listTasks();
-      final updatedTasks = tasks.where((t) => t.id != id).toList();
+      // Récupérer la liste actuelle, puis la filtrer
+      final normalyzedTitle = title.trim().toLowerCase();
+      final tasks = await _service.listTasks();
+      final updatedTasks = tasks
+          .where((t) => t.title != normalyzedTitle)
+          .toList();
 
       if (tasks.length == updatedTasks.length) {
-        print('Erreur: Aucune tâche trouvée avec l\'idée $id');
+        print('Erreur : aucune tâche trouvée avec l\'ID $title');
+        return;
       }
 
-      _service.saveTasks(updatedTasks);
+      // Appel d'une nouvelle méthode deleteTask dans le service
+      await _service.deleteTask(title);
+      print('Tâche $title supprimée avec succès.');
     } catch (e) {
-      print('Erreur lors de la suppression: $e');
+      print('Erreur lors de la suppression : $e');
     }
   }
 
   (CommandType, List<String>) _showHelp() {
     print('''
-Commandes disponibles:
-    list                - Affiche la liste des tâches
-    create <titre>      - Crée une nouvelle tâche
-    complete <id>       - Marque la tâche comme terminée
-    delete <id>         - Supprime la tâche
-    help                - Affiche cette aide
-    quit                - Quite l'application
-    ''');
-
+Commandes disponibles :
+  list                - Affiche la liste des tâches
+  create <titre>      - Crée une nouvelle tâche
+  complete <title>       - Marque la tâche comme terminée
+  delete <title>         - Supprime la tâche
+  help                - Affiche cette aide
+  quit                - Quitte l'application
+''');
     return (CommandType.unknown, <String>[]);
   }
 }

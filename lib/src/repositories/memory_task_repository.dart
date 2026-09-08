@@ -8,14 +8,15 @@ final class MemoryTaskRepository implements TaskRepository {
     : _tasks = [...initialTasks];
 
   @override
-  List<Task> loadTasks() {
-    return List<Task>.unmodifiable(_tasks);
+  Future<List<Task>> loadTasks() {
+    return Future<List<Task>>.value(List<Task>.unmodifiable(_tasks));
   }
 
   @override
-  void saveTasks(List<Task> tasks) {
+  Future<void> saveTasks(List<Task> tasks) {
     _tasks
       ..clear()
       ..addAll(tasks);
+    return Future<void>.value();
   }
 }
