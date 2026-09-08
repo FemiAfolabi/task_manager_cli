@@ -24,7 +24,13 @@ class Task {
   TaskStatus _status;
   TaskStatus get status => _status;
 
-  bool get isComplete => _status == TaskStatus.completed;
+  bool get isCompleted => _status == TaskStatus.completed;
+
+  set status(TaskStatus newStattus) {
+    if (_status != newStattus) {
+      _status = newStattus;
+    }
+  }
 
   static String _validateId(String id) {
     final trimmed = id.trim();
@@ -46,11 +52,47 @@ class Task {
     return trimmed;
   }
 
-  void complete() {
-    if (isComplete) {
+  Task complete() {
+    if (isCompleted) {
       throw StateError('La tâche $_title est déjà terminée');
     }
-    _status = TaskStatus.completed;
+    return Task(
+      id: id,
+      title: title,
+      description: description,
+      priority: priority,
+      status: TaskStatus.completed,
+    );
+  }
+
+  Map<String, Object?> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'description': description,
+      'priority': priority.name,
+      'status': status.name,
+    };
+  }
+
+  factory Task.fromJson(Map<String, Object?> json) {
+    try {
+      final id = json['id'] as String;
+      final title = json['title'] as String;
+      final description = json['description'] as String?;
+      final priorityName = json['priority'] as String? ?? 'medium';
+      final statusName = json['statusd'] as String? ?? 'pending';
+
+      return Task(
+        id: id,
+        title: title,
+        description: description,
+        priority: Priority.values.byName(priorityName),
+        status: TaskStatus.values.byName(statusName),
+      );
+    } on Object catch (e) {
+      throw FormatException('JSON non valide: $e');
+    }
   }
 
   @override
